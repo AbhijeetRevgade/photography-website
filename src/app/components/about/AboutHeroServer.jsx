@@ -1,4 +1,3 @@
-// import { fetchAboutPage } from "../../../lib/api";
 import { fetchAboutPage } from "../../lib/api";
 import AboutHeroClient from "./AboutHeroClient";
 

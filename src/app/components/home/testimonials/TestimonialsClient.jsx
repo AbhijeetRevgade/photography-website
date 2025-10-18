@@ -8,21 +8,19 @@ export default function TestimonialsClient({ testimonials }) {
   const [current, setCurrent] = useState(0);
   const scrollContainerRef = useRef(null);
 
-  if (!testimonials) return null;
-
-  const items = testimonials.content_items?.filter(
+  const items = testimonials?.content_items?.filter(
     (item) => item.is_active && item.image
   );
 
-  if (!items || items.length === 0) return null;
+  // ✅ Hooks always run — conditional logic moved inside
   useEffect(() => {
+    if (!items || items.length === 0) return;
     const container = scrollContainerRef.current;
     if (!container) return;
 
     const handleScroll = () => {
       const scrollLeft = container.scrollLeft;
       const firstItem = container.querySelector(".snap-start");
-
       if (!firstItem) return;
       const itemWidth = firstItem.offsetWidth;
       const newCurrent = Math.round(scrollLeft / itemWidth);
@@ -30,6 +28,7 @@ export default function TestimonialsClient({ testimonials }) {
         setCurrent(newCurrent % items.length);
       }
     };
+
     let scrollTimeout;
     const debouncedHandleScroll = () => {
       clearTimeout(scrollTimeout);
@@ -41,22 +40,26 @@ export default function TestimonialsClient({ testimonials }) {
       container.removeEventListener("scroll", debouncedHandleScroll);
       clearTimeout(scrollTimeout);
     };
-  }, [items.length, current]);
+  }, [items, current]);
+
   useEffect(() => {
+    if (!items || items.length === 0) return;
     const container = scrollContainerRef.current;
-    if (container) {
-      const firstItem = container.querySelector(".snap-start");
+    if (!container) return;
 
-      if (!firstItem) return;
+    const firstItem = container.querySelector(".snap-start");
+    if (!firstItem) return;
 
-      const itemWidth = firstItem.offsetWidth;
+    const itemWidth = firstItem.offsetWidth;
+    container.scrollTo({
+      left: current * itemWidth,
+      behavior: "smooth",
+    });
+  }, [current, items]);
 
-      container.scrollTo({
-        left: current * itemWidth,
-        behavior: "smooth",
-      });
-    }
-  }, [current]);
+  // ✅ Safe returns after hooks
+  if (!testimonials) return null;
+  if (!items || items.length === 0) return null;
 
   const nextSlide = () => setCurrent((prev) => (prev + 1) % items.length);
   const prevSlide = () =>
@@ -202,19 +205,16 @@ export default function TestimonialsClient({ testimonials }) {
           display: none;
         }
         .hide-scrollbar {
-          -ms-overflow-style: none; /* IE and Edge */
-          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
 
-        /* Desktop (MD and up): Hover-to-reveal logic */
         @media (min-width: 768px) {
           .group > div:nth-child(2) {
             position: absolute;
             bottom: 0;
             left: 0;
-            /* Start hidden */
             transform: translateY(100%);
-            /* Bring into view on hover */
             transition: transform 0.5s ease;
           }
           .group:hover > div:nth-child(2) {
@@ -222,10 +222,8 @@ export default function TestimonialsClient({ testimonials }) {
           }
         }
 
-        /* Mobile (default): Content is permanently visible */
         @media (max-width: 767px) {
           .group > div:nth-child(2) {
-            /* Ensure mobile content is static and visible */
             position: static !important;
             transform: translateY(0) !important;
           }

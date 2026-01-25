@@ -63,3 +63,16 @@ export async function fetchPortfolioPage() {
     return null;
   }
 }
+export async function fetchAboutPage() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/about/api/fetch-about_page`,
+      { next: { revalidate: 10 } }
+    );
+    if (!res.ok) throw new Error("Failed to fetch About Page");
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching About Page:", error);
+    return null;
+  }
+}

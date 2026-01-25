@@ -27,6 +27,7 @@ useEffect(() => {
       setCurrent(newCurrent % items.length);
     };
 
+
     let scrollTimeout;
     const debounced = () => {
       clearTimeout(scrollTimeout);
@@ -199,19 +200,16 @@ useEffect(() => {
           display: none;
         }
         .hide-scrollbar {
-          -ms-overflow-style: none; /* IE and Edge */
-          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
 
-        /* Desktop (MD and up): Hover-to-reveal logic */
         @media (min-width: 768px) {
           .group > div:nth-child(2) {
             position: absolute;
             bottom: 0;
             left: 0;
-            /* Start hidden */
             transform: translateY(100%);
-            /* Bring into view on hover */
             transition: transform 0.5s ease;
           }
           .group:hover > div:nth-child(2) {
@@ -219,10 +217,8 @@ useEffect(() => {
           }
         }
 
-        /* Mobile (default): Content is permanently visible */
         @media (max-width: 767px) {
           .group > div:nth-child(2) {
-            /* Ensure mobile content is static and visible */
             position: static !important;
             transform: translateY(0) !important;
           }

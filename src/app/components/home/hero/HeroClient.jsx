@@ -1,15 +1,15 @@
 "use client";
-import React, { useEffect, useState, useMemo } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 export default function HeroClient({ hero }) {
   const images = useMemo(() => {
     if (!hero?.content_items) return [];
     return hero.content_items
-      .filter((item) => item.is_active)
+      .filter((item) => item.is_active && item.image)
       .map((item) => item.image);
-  }, [hero]);
+  }, [hero?.content_items]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
 

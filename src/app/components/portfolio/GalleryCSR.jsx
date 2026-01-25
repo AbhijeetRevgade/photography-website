@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { normalizeImageUrl } from "@/app/lib/api";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 export default function GalleryCSR({ initialData }) {
   const data = initialData || {};
@@ -167,21 +167,24 @@ export default function GalleryCSR({ initialData }) {
                       transform: `translateX(-${(start * 100) / pageSize}%)`,
                     }}
                   >
-                    {g.items.map((item) => {
-                      const imgUrl = normalizeImageUrl(item.image || "");
-                      return (
-                        <figure
-                          key={item.id}
-                          className="flex-shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[320px]"
-                        >
-                          <div className="w-full overflow-hidden rounded-none">
-                            <Image
-                              src={imgUrl || "/placeholder.jpg"}
-                              alt={item.title || ""}
-                              width={500}
-                              height={500}
-                              className="w-full h-[200px] sm:h-[250px] md:h-[300px] object-cover rounded-none"
-                            />
+                    {g.items
+                      .filter((item) => item.image)
+                      .map((item) => {
+                        const imgUrl = normalizeImageUrl(item.image || "");
+                        if (!imgUrl) return null;
+                        return (
+                          <figure
+                            key={item.id}
+                            className="flex-shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[320px]"
+                          >
+                            <div className="w-full overflow-hidden rounded-none">
+                              <Image
+                                src={imgUrl}
+                                alt={item.title || ""}
+                                width={500}
+                                height={500}
+                                className="w-full h-[200px] sm:h-[250px] md:h-[300px] object-cover rounded-none"
+                              />
                           </div>
                           <figcaption className="mt-2 sm:mt-3">
                             {item.title && (

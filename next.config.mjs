@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["lensbackend.networkindia.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "rushibackend.strangled.net",
+      },
+    ],
   },
 };
 

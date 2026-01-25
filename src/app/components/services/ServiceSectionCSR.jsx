@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import { normalizeImageUrl } from "../../lib/api";
 import { motion } from "framer-motion";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { normalizeImageUrl } from "../../lib/api";
 
 export default function ServiceSectionCSR({ initialData }) {
   const [images, setImages] = useState([]);
@@ -15,7 +15,7 @@ export default function ServiceSectionCSR({ initialData }) {
   useEffect(() => {
     if (!initialData?.is_active) return;
     const activeImages = (initialData.content_items || [])
-      .filter((it) => it?.is_active)
+      .filter((it) => it?.is_active && it?.image)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
     setImages(activeImages);
   }, [initialData]);

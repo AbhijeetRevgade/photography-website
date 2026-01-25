@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
 import { normalizeImageUrl } from "@/app/lib/api";
+import Image from "next/image";
 
 export default function ShowcaseCSR({ initialData }) {
   if (!initialData) return null;
@@ -15,6 +14,8 @@ export default function ShowcaseCSR({ initialData }) {
   } = initialData;
 
   const primaryUrl = normalizeImageUrl(primary_image || "");
+
+  if (!primaryUrl) return null;
 
   return (
     <section className="relative w-full h-screen">
@@ -67,17 +68,19 @@ export default function ShowcaseCSR({ initialData }) {
         </div>
 
         {/* Content Images */}
-        {content_items.map((item, idx) => (
-          <div
-            key={item.id || idx}
-            className="relative h-screen w-full snap-start flex items-center justify-center group"
-          >
-            <Image
-              src={normalizeImageUrl(item.image || "")}
-              alt={item.title || `Image ${idx + 1}`}
-              fill
-              className="object-cover brightness-105 contrast-110 saturate-120 transition-all duration-1000 ease-out scale-110 group-hover:scale-105"
-            />
+        {content_items
+          .filter((item) => normalizeImageUrl(item.image || ""))
+          .map((item, idx) => (
+            <div
+              key={item.id || idx}
+              className="relative h-screen w-full snap-start flex items-center justify-center group"
+            >
+              <Image
+                src={normalizeImageUrl(item.image || "")}
+                alt={item.title || `Image ${idx + 1}`}
+                fill
+                className="object-cover brightness-105 contrast-110 saturate-120 transition-all duration-1000 ease-out scale-110 group-hover:scale-105"
+              />
             {/* Enhanced Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10 transition-all duration-1000 group-hover:via-black/40" />
 

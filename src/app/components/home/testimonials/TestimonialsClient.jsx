@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
@@ -8,55 +8,52 @@ export default function TestimonialsClient({ testimonials }) {
   const [current, setCurrent] = useState(0);
   const scrollContainerRef = useRef(null);
 
-  if (!testimonials) return null;
-
   const items = testimonials.content_items?.filter(
     (item) => item.is_active && item.image
   );
 
-  if (!items || items.length === 0) return null;
-  useEffect(() => {
+useEffect(() => {
+    if (!items.length) return;
+
     const container = scrollContainerRef.current;
     if (!container) return;
 
     const handleScroll = () => {
-      const scrollLeft = container.scrollLeft;
       const firstItem = container.querySelector(".snap-start");
-
       if (!firstItem) return;
+
       const itemWidth = firstItem.offsetWidth;
-      const newCurrent = Math.round(scrollLeft / itemWidth);
-      if (newCurrent !== current) {
-        setCurrent(newCurrent % items.length);
-      }
+      const newCurrent = Math.round(container.scrollLeft / itemWidth);
+      setCurrent(newCurrent % items.length);
     };
+
     let scrollTimeout;
-    const debouncedHandleScroll = () => {
+    const debounced = () => {
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(handleScroll, 50);
     };
 
-    container.addEventListener("scroll", debouncedHandleScroll);
+    container.addEventListener("scroll", debounced);
     return () => {
-      container.removeEventListener("scroll", debouncedHandleScroll);
+      container.removeEventListener("scroll", debounced);
       clearTimeout(scrollTimeout);
     };
-  }, [items.length, current]);
-  useEffect(() => {
+  }, [items.length]);
+
+    useEffect(() => {
+    if (!items.length) return;
+
     const container = scrollContainerRef.current;
-    if (container) {
-      const firstItem = container.querySelector(".snap-start");
+    if (!container) return;
 
-      if (!firstItem) return;
+    const firstItem = container.querySelector(".snap-start");
+    if (!firstItem) return;
 
-      const itemWidth = firstItem.offsetWidth;
-
-      container.scrollTo({
-        left: current * itemWidth,
-        behavior: "smooth",
-      });
-    }
-  }, [current]);
+    container.scrollTo({
+      left: current * firstItem.offsetWidth,
+      behavior: "smooth",
+    });
+  }, [current, items.length]);
 
   const nextSlide = () => setCurrent((prev) => (prev + 1) % items.length);
   const prevSlide = () =>

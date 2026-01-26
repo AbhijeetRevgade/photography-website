@@ -1,115 +1,103 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { normalizeImageUrl } from "../../lib/api";
 
 export default function ServicesHeroCSR({ initialData }) {
-  const [images, setImages] = useState([]);
-  const [index, setIndex] = useState(0);
-  const intervalRef = useRef(null);
-
-  const ROTATE_INTERVAL = 5000;
+  const [bgImage, setBgImage] = useState(null);
 
   useEffect(() => {
-    if (!initialData?.is_active) return;
+    if (!initialData) return;
 
-    const activeImages = (initialData.content_items || [])
-      .filter((it) => it?.is_active && it?.image)
-      .sort((a, b) => (a.order || 0) - (b.order || 0));
+    // Prioritize primary_image, fallback to first content item image
+    let imgUrl = initialData.primary_image;
+    if (!imgUrl && initialData.content_items?.length > 0) {
+      imgUrl = initialData.content_items[0].image;
+    }
 
-    setImages(activeImages);
+    if (imgUrl) {
+      setBgImage(normalizeImageUrl(imgUrl));
+    }
   }, [initialData]);
 
-  useEffect(() => {
-    if (images.length <= 1) return;
-
-    intervalRef.current = setInterval(() => {
-      setIndex((prev) => (prev + 1) % images.length);
-    }, ROTATE_INTERVAL);
-
-    return () => clearInterval(intervalRef.current);
-  }, [images]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    images.forEach((img) => {
-      const i = new window.Image();
-      i.src = normalizeImageUrl(img.image);
-    });
-  }, [images]);
-
-  if (!initialData?.is_active || images.length === 0) return null;
+  if (!initialData?.is_active) return null;
 
   return (
-    <section className="relative w-full h-[60vh] sm:h-[65vh] md:h-[75vh] lg:h-[90vh] overflow-hidden">
-      <div className="absolute inset-0">
-        {images.map((it, i) => {
-          const src = normalizeImageUrl(it.image);
-          return (
-            <div
-              key={it.id ?? i}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out transform ${
-                i === index ? "opacity-100 scale-100" : "opacity-0 scale-105"
-              }`}
-            >
-              <Image
-                src={src}
-                alt={it.title || `services-hero-${i + 1}`}
-                fill
-                priority={i === 0}
-                className="object-cover"
-                draggable={false}
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/45 pointer-events-none" />
-            </div>
-          );
-        })}
-      </div>
+    <section className="relative w-full h-[85vh] overflow-hidden bg-black text-white">
+      {/* Background Image */}
+      {bgImage && (
+        <div className="absolute inset-0 z-0">
+          <motion.div
+            initial={{ scale: 1.1, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="relative w-full h-full"
+          >
+            <Image
+              src={bgImage}
+              alt={initialData.heading || "Services Hero"}
+              fill
+              priority
+              className="object-cover opacity-80"
+              sizes="100vw"
+              draggable={false}
+            />
+            {/* Elegant overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
+            <div className="absolute inset-0 bg-black/20" />
+          </motion.div>
+        </div>
+      )}
 
-      <div className="relative z-10 flex items-center justify-center h-full px-6 md:px-12">
-        <div className="text-center max-w-6xl w-full">
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 md:px-12 text-center">
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="max-w-4xl space-y-8"
+        >
           {initialData.heading && (
-            <div className="flex justify-center">
-              <h1
-                className="text-white uppercase leading-none font-serif drop-shadow-lg
-                         text-5xl sm:text-6xl md:text-[104px] lg:text-[150px]"
-              >
-                {initialData.heading}
-              </h1>
-            </div>
+            <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight leading-none uppercase drop-shadow-2xl">
+              {initialData.heading}
+            </h1>
           )}
 
           {initialData.description && (
-            <p className="mt-4 text-white text-base md:text-lg max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl font-light text-gray-200 max-w-2xl mx-auto leading-relaxed tracking-wide">
               {initialData.description}
             </p>
           )}
 
-          <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
-            {initialData.primary_button_text &&
-              initialData.primary_button_url && (
-                <a
-                  href={initialData.primary_button_url}
-                  className="button px-6 py-3 text-lg rounded-none whitespace-nowrap inline-block"
-                  aria-label={initialData.primary_button_text}
-                >
+          {/* Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-6 pt-8">
+            {initialData.primary_button_text && (
+              <a
+                href={initialData.primary_button_url || "#"}
+                className="group relative px-8 py-3 bg-white text-black font-medium tracking-widest text-sm uppercase overflow-hidden"
+              >
+                <span className="relative z-10 group-hover:text-white transition-colors duration-300">
                   {initialData.primary_button_text}
-                </a>
-              )}
+                </span>
+                <span className="absolute inset-0 bg-black transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300 ease-out" />
+              </a>
+            )}
 
-            {initialData.secondary_button_text &&
-              initialData.secondary_button_url && (
-                <a
-                  href={initialData.secondary_button_url}
-                  className="px-6 py-3 border border-white text-white inline-block"
-                  aria-label={initialData.secondary_button_text}
-                >
+            {initialData.secondary_button_text && (
+              <a
+                href={initialData.secondary_button_url || "#"}
+                className="group relative px-8 py-3 border border-white text-white font-medium tracking-widest text-sm uppercase overflow-hidden hover:border-transparent"
+              >
+                <span className="relative z-10 group-hover:text-black transition-colors duration-300">
                   {initialData.secondary_button_text}
-                </a>
-              )}
+                </span>
+                <span className="absolute inset-0 bg-white transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300 ease-out" />
+              </a>
+            )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

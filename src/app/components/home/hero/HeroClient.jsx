@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useScroll, useTransform, motion, useSpring, useMotionValueEvent } from "framer-motion";
 
 const FRAME_COUNT = 120;
@@ -127,7 +127,7 @@ export default function HeroClient({ hero }) {
 
   // Common container with ref for useScroll
   return (
-    <section ref={containerRef} className="relative h-[400vh] bg-black">
+    <section ref={containerRef} className="relative h-[300vh] md:h-[400vh] bg-black">
       {isLoading ? (
         <div className="sticky top-0 h-screen w-full flex items-center justify-center bg-black text-white">
           <div className="flex flex-col items-center">
@@ -137,14 +137,24 @@ export default function HeroClient({ hero }) {
         </div>
       ) : (
         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          <canvas ref={canvasRef} className="w-full h-full block" />
+          <canvas ref={canvasRef} className="w-full h-full block object-cover" />
+
+          {/* Noise/Grain Overlay */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay"
+            style={{ backgroundImage: 'url("/noise.png")' }} // Assuming you might add a noise file, or use CSS gradient
+          />
+          {/* Fallback CSS noise if image missing */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.05]"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+          />
+
 
           {/* Text Overlays */}
           <OverlaySection progress={smoothProgress} />
 
           {/* Helper/Indicator */}
           <motion.div
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/50 text-xs tracking-widest uppercase pointer-events-none"
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/50 text-[10px] md:text-xs tracking-widest uppercase pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
@@ -164,11 +174,11 @@ function OverlaySection({ progress }) {
 
   // 2. 25% Scroll (Left)
   const opacity2 = useTransform(progress, [0.15, 0.25, 0.35], [0, 1, 0]);
-  const x2 = useTransform(progress, [0.15, 0.25, 0.35], [-50, 0, -50]);
+  const x2 = useTransform(progress, [0.15, 0.25, 0.35], [-30, 0, -30]); // Reduced offset for mobile
 
   // 3. 60% Scroll (Right)
   const opacity3 = useTransform(progress, [0.5, 0.6, 0.7], [0, 1, 0]);
-  const x3 = useTransform(progress, [0.5, 0.6, 0.7], [50, 0, 50]);
+  const x3 = useTransform(progress, [0.5, 0.6, 0.7], [30, 0, 30]); // Reduced offset for mobile
 
   // 4. 90% Scroll (Center CTA)
   const opacity4 = useTransform(progress, [0.8, 0.9, 1], [0, 1, 1]);
@@ -181,39 +191,45 @@ function OverlaySection({ progress }) {
         style={{ opacity: opacity1, y: y1 }}
         className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none z-10 p-4"
       >
-        <h1 className="text-4xl md:text-6xl font-bold mb-2 text-white">Hrushikesh Warule</h1>
-        <p className="text-lg md:text-xl tracking-widest uppercase text-gray-300">Visual Storyteller</p>
+        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-2 text-white tracking-tighter mix-blend-difference">
+          Hrushikesh Warule
+        </h1>
+        <p className="text-sm sm:text-base md:text-xl tracking-[0.3em] uppercase text-gray-400 font-light">
+          Visual Storyteller
+        </p>
       </motion.div>
 
       {/* 25% Left */}
       <motion.div
         style={{ opacity: opacity2, x: x2 }}
-        className="absolute top-1/2 left-[10%] -translate-y-1/2 text-left pointer-events-none z-10 max-w-sm p-4"
+        className="absolute top-1/2 left-4 md:left-[10%] -translate-y-1/2 text-left pointer-events-none z-10 max-w-[80vw] md:max-w-sm p-4"
       >
-        <h2 className="text-3xl md:text-5xl font-bold mb-2 text-white/90">Capturing Moments</h2>
-        <p className="text-md md:text-lg text-gray-300">Transforming vision into reality</p>
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-2 text-white/90">Capturing Moments</h2>
+        <p className="text-sm md:text-lg text-gray-300">Transforming vision into reality</p>
       </motion.div>
 
       {/* 60% Right */}
       <motion.div
         style={{ opacity: opacity3, x: x3 }}
-        className="absolute top-1/2 right-[10%] -translate-y-1/2 text-right pointer-events-none z-10 max-w-sm p-4"
+        className="absolute top-1/2 right-4 md:right-[10%] -translate-y-1/2 text-right pointer-events-none z-10 max-w-[80vw] md:max-w-sm p-4"
       >
-        <h2 className="text-3xl md:text-5xl font-bold mb-2 text-white/90">Art in Motion</h2>
-        <p className="text-md md:text-lg text-gray-300">Portrait. Landscape. Life.</p>
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-2 text-white/90">Art in Motion</h2>
+        <p className="text-sm md:text-lg text-gray-300">Portrait. Landscape. Life.</p>
       </motion.div>
 
       {/* 90% Center CTA */}
       <motion.div
         style={{ opacity: opacity4, scale: scale4 }}
-        className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 p-4"
+        className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 p-6"
       >
-        <h2 className="text-4xl md:text-6xl font-bold mb-4 text-white">Explore the Portfolio</h2>
+        <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 text-white leading-tight">
+          Explore the Portfolio
+        </h2>
         <button
-          className="px-8 py-3 bg-[#ad8a56] text-white uppercase tracking-widest text-sm hover:bg-[#916f3f] transition-colors shadow-lg cursor-pointer"
+          className="px-8 py-3 md:px-10 md:py-4 bg-[#ad8a56] text-white uppercase tracking-widest text-xs md:text-sm hover:bg-[#916f3f] transition-all shadow-lg hover:shadow-[#ad8a56]/40 cursor-pointer rounded-sm"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
-          Scroll back to replay
+          Replay Experience
         </button>
       </motion.div>
     </>

@@ -11,27 +11,27 @@ export default function AboutClient({ about }) {
   if (!about) return null;
 
   const imageVariants = {
-    hidden: { opacity: 0, x: -50, scale: 0.9 },
+    hidden: { opacity: 0, x: -30, scale: 0.95 },
     visible: {
       opacity: 1,
       x: 0,
       scale: 1,
       transition: {
-        duration: 0.8,
+        duration: 1.0,
         ease: "easeOut",
       },
     },
   };
 
   const contentVariants = {
-    hidden: { opacity: 0, x: 50 },
+    hidden: { opacity: 0, x: 30 },
     visible: {
       opacity: 1,
       x: 0,
       transition: {
-        duration: 0.8,
+        duration: 1.0,
         ease: "easeOut",
-        staggerChildren: 0.2,
+        staggerChildren: 0.15,
       },
     },
   };
@@ -46,42 +46,51 @@ export default function AboutClient({ about }) {
   };
 
   return (
-    <section ref={ref} className="w-full px-4 sm:px-6 py-16 md:py-20 bg-white">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+    <section ref={ref} className="w-full px-4 sm:px-6 py-20 md:py-32 bg-white overflow-hidden">
+      <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         {about.primary_image && (
           <motion.div
             variants={imageVariants}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
-            className="flex justify-center items-center h-full"
+            className="flex justify-center items-center w-full relative"
           >
             <motion.div
               whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.3 }}
-              className="w-full max-w-[380px] h-full relative overflow-hidden shadow-lg"
+              transition={{ duration: 0.5 }}
+              className="w-full max-w-[500px] aspect-[4/5] relative overflow-hidden shadow-2xl"
             >
               <Image
                 src={about.primary_image}
                 alt={about.heading || "About image"}
-                width={500}
-                height={500}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
-              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500" />
             </motion.div>
+
+            {/* Decor Element */}
+            <div className="absolute -z-10 top-[-20px] left-[-20px] w-full h-full border border-gray-100 hidden lg:block" />
           </motion.div>
         )}
+
         <motion.div
           variants={contentVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="flex flex-col justify-center h-full"
+          className="flex flex-col justify-center"
         >
+          <motion.span
+            variants={itemVariants}
+            className="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 mb-4 block"
+          >
+            About Me
+          </motion.span>
+
           <motion.h2
             variants={itemVariants}
-            className="text-3xl md:text-4xl font-bold uppercase mb-4 leading-snug"
+            className="text-4xl md:text-5xl lg:text-6xl font-medium mb-6 leading-tight"
             style={{
               color: "#ad8a56",
               fontFamily: "'Playfair Display', serif",
@@ -89,32 +98,33 @@ export default function AboutClient({ about }) {
           >
             {about.heading}
           </motion.h2>
+
           {about.subheading && (
             <motion.h3
               variants={itemVariants}
-              className="text-xl font-semibold mb-6 text-gray-800"
+              className="text-xl md:text-2xl font-light mb-8 text-gray-600 italic font-serif"
             >
               {about.subheading}
             </motion.h3>
           )}
+
           {about.description && (
             <motion.div
               variants={itemVariants}
-              className="text-gray-700 leading-relaxed text-sm md:text-base max-h-[380px] md:max-h-[420px] overflow-y-auto pr-2"
+              className="text-gray-500 leading-relaxed text-base md:text-lg mb-8 font-light max-w-xl"
               style={{ whiteSpace: "pre-line" }}
               dangerouslySetInnerHTML={{ __html: about.description }}
             />
           )}
+
           {about.primary_button_text && about.primary_button_url && (
             <motion.div variants={itemVariants}>
-              <Link href={about.primary_button_url}>
-                <motion.span
-                  whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(173, 138, 86, 0.4)" }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-block mt-6 px-5 py-2 text-white text-sm uppercase font-medium tracking-wide bg-[#ad8a56] hover:bg-[#916f45] w-max transition cursor-pointer"
+              <Link href={about.primary_button_url} className="inline-block group">
+                <span
+                  className="inline-block px-8 py-3 text-white text-sm uppercase font-medium tracking-widest bg-[#ad8a56] transition-all duration-300 shadow-lg hover:shadow-[#ad8a56]/40 hover:-translate-y-1"
                 >
                   {about.primary_button_text}
-                </motion.span>
+                </span>
               </Link>
             </motion.div>
           )}

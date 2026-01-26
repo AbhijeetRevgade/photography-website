@@ -2,6 +2,7 @@
 import React, { useRef } from "react";
 import Link from "next/link";
 import { motion, useInView } from "framer-motion";
+
 const DecorativeHookSvg = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -26,22 +27,23 @@ export default function CtaClient({ cta }) {
   if (!cta) return null;
 
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0, scale: 0.98 },
     visible: {
       opacity: 1,
+      scale: 1,
       transition: {
+        duration: 0.8,
+        ease: "easeOut",
         staggerChildren: 0.2,
-        delayChildren: 0.1,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.9 },
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      scale: 1,
       transition: {
         duration: 0.6,
         ease: "easeOut",
@@ -50,33 +52,37 @@ export default function CtaClient({ cta }) {
   };
 
   return (
-    <section ref={ref} className="w-full bg-gradient-to-b from-gray-50 to-white py-16 px-4 sm:px-6">
+    <section ref={ref} className="w-full bg-white py-20 md:py-32 px-4 sm:px-6">
       <motion.div
         initial="hidden"
         animate={isInView ? "visible" : "hidden"}
         variants={containerVariants}
-        className="bg-black max-w-7xl mx-auto py-16 px-6 sm:px-12 text-center rounded-none shadow-2xl shadow-[#b08d57]/30 relative overflow-hidden"
+        className="bg-black max-w-[1400px] mx-auto py-20 px-6 sm:px-12 md:px-24 text-center shadow-2xl shadow-[#b08d57]/20 relative overflow-hidden"
       >
         <motion.div
           variants={itemVariants}
           className="absolute inset-0 bg-gradient-to-r from-[#ad8a56]/10 via-transparent to-[#ad8a56]/10"
         />
-        <div className="relative max-w-4xl mx-auto flex flex-col items-center gap-4">
-          <motion.div
-            variants={itemVariants}
-            className="absolute top-[-30px] left-[-30px] transform scale-x-[-1] hidden md:block"
-          >
-            <DecorativeHookSvg className="opacity-60" />
-          </motion.div>
-          <motion.div
-            variants={itemVariants}
-            className="absolute bottom-[-30px] right-[-30px] transform scale-y-[-1] hidden md:block"
-          >
-            <DecorativeHookSvg className="opacity-60" />
-          </motion.div>
+
+        {/* Decorative Hooks */}
+        <motion.div
+          variants={itemVariants}
+          className="absolute top-[-20px] left-[-20px] transform scale-x-[-1] opacity-40 hidden md:block"
+        >
+          <DecorativeHookSvg />
+        </motion.div>
+
+        <motion.div
+          variants={itemVariants}
+          className="absolute bottom-[-20px] right-[-20px] transform scale-y-[-1] opacity-40 hidden md:block"
+        >
+          <DecorativeHookSvg />
+        </motion.div>
+
+        <div className="relative max-w-4xl mx-auto flex flex-col items-center gap-8 md:gap-10">
           <motion.h2
             variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold uppercase tracking-wider text-white z-10"
+            className="text-4xl md:text-5xl lg:text-7xl font-medium tracking-tight text-white z-10 leading-tight"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             {cta.heading}
@@ -84,43 +90,39 @@ export default function CtaClient({ cta }) {
           {cta.subheading && (
             <motion.p
               variants={itemVariants}
-              className="text-gray-300 text-base md:text-lg z-10"
+              className="text-gray-300 text-lg md:text-xl z-10 font-light max-w-2xl"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               {cta.subheading}
             </motion.p>
           )}
+
           <motion.div
             variants={itemVariants}
-            className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 z-10"
+            className="flex flex-col sm:flex-row justify-center items-center gap-6 mt-4 z-10"
           >
             {cta.primary_button_text && (
-              <motion.div
-                whileHover={{ scale: 1.05, boxShadow: "0 8px 25px rgba(173, 138, 86, 0.5)" }}
-                whileTap={{ scale: 0.95 }}
+              <Link
+                href={cta.primary_button_url || "#"}
+                className="group relative px-10 py-4 bg-[#ad8a56] text-white font-medium uppercase tracking-widest text-sm overflow-hidden shadow-lg transition-transform hover:-translate-y-1"
               >
-                <Link
-                  href={cta.primary_button_url || "#"}
-                  className="w-full sm:w-auto bg-[#ad8a56] hover:bg-[#ad8a56] text-black font-semibold text-sm uppercase tracking-wider px-8 py-3 transition duration-300 border border-[#b08d57] inline-block"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
-                >
-                  {cta.primary_button_text} →
-                </Link>
-              </motion.div>
+                <span className="relative z-10 group-hover:text-white transition-colors duration-300">
+                  {cta.primary_button_text}
+                </span>
+                <span className="absolute inset-0 bg-[#916f45] transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300 ease-out" />
+              </Link>
             )}
+
             {cta.secondary_button_text && (
-              <motion.div
-                whileHover={{ scale: 1.05, boxShadow: "0 8px 25px rgba(255, 255, 255, 0.2)" }}
-                whileTap={{ scale: 0.95 }}
+              <Link
+                href={cta.secondary_button_url || "#"}
+                className="group relative px-10 py-4 border border-white text-white font-medium uppercase tracking-widest text-sm overflow-hidden hover:border-transparent transition-transform hover:-translate-y-1"
               >
-                <Link
-                  href={cta.secondary_button_url || "#"}
-                  className="w-full sm:w-auto bg-transparent border border-[#ad8a56] text-[#ffffff] hover:bg-[#fefefe] hover:text-[#ad8a56] font-semibold text-sm uppercase tracking-wider px-8 py-3 transition duration-300 inline-block"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
-                >
-                  {cta.secondary_button_text} →
-                </Link>
-              </motion.div>
+                <span className="relative z-10 group-hover:text-black transition-colors duration-300">
+                  {cta.secondary_button_text}
+                </span>
+                <span className="absolute inset-0 bg-white transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300 ease-out" />
+              </Link>
             )}
           </motion.div>
         </div>

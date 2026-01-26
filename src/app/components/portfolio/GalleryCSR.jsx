@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function GalleryCSR({ initialData }) {
   const data = initialData || {};
@@ -92,68 +93,72 @@ export default function GalleryCSR({ initialData }) {
   if (!(data.is_active ?? true)) return null;
 
   return (
-    <section className="bg-black text-white py-8 md:py-12">
+    <section className="bg-black text-white py-12 md:py-20">
       <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-16">
-        <div className="mb-6 md:mb-8 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="mb-10 md:mb-16 text-center"
+        >
           {data.heading && (
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-playfair-display uppercase text-muted-bronze">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-playfair-display uppercase text-muted-bronze tracking-tight">
               {data.heading}
             </h2>
           )}
           {data.subheading && (
-            <p className="mt-2 text-sm sm:text-base text-white/80 px-2">
+            <p className="mt-4 text-base sm:text-lg text-white/60 px-2 max-w-2xl mx-auto font-light">
               {data.subheading}
             </p>
           )}
-        </div>
+        </motion.div>
 
-        <div className="space-y-8 md:space-y-12">
-          {grouped.map((g) => {
+        <div className="space-y-16 md:space-y-24">
+          {grouped.map((g, idx) => {
             const start = indices[g.slug] ?? 0;
             const total = g.items.length;
 
             return (
-              <div key={g.slug}>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3 sm:gap-0">
-                  <h3 className="uppercase tracking-widest text-base sm:text-lg md:text-xl font-playfair-display text-muted-bronze text-center sm:text-left">
+              <motion.div
+                key={g.slug}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 sm:gap-0 border-b border-white/10 pb-4">
+                  <h3 className="uppercase tracking-[0.2em] text-lg sm:text-xl font-playfair-display text-muted-bronze text-center sm:text-left">
                     {g.name}
                   </h3>
 
-                  <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-3">
+                  <div className="flex items-center justify-center sm:justify-end gap-4">
                     {g.view_more_url && (
                       <Link
                         href={g.view_more_url}
-                        className="button px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-none whitespace-nowrap"
+                        className="text-xs sm:text-sm uppercase tracking-widest hover:text-muted-bronze transition-colors"
                       >
-                        View More
+                        View All
                       </Link>
                     )}
-                    <div className="flex gap-2 sm:gap-3">
+                    <div className="flex gap-2">
                       <button
                         onClick={() => handlePrev(g.slug)}
                         disabled={start === 0}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-all ${
-                          start === 0 ? "opacity-40 cursor-not-allowed" : ""
-                        }`}
+                        className={`w-10 h-10 flex items-center justify-center border border-white/20 hover:border-white/60 transition-colors ${start === 0 ? "opacity-30 cursor-not-allowed" : ""
+                          }`}
                       >
-                        <ChevronLeft
-                          size={16}
-                          className="sm:w-[18px] sm:h-[18px]"
-                        />
+                        <ChevronLeft size={20} />
                       </button>
                       <button
                         onClick={() => handleNext(g.slug)}
                         disabled={start + pageSize >= total}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-all ${
-                          start + pageSize >= total
-                            ? "opacity-40 cursor-not-allowed"
+                        className={`w-10 h-10 flex items-center justify-center border border-white/20 hover:border-white/60 transition-colors ${start + pageSize >= total
+                            ? "opacity-30 cursor-not-allowed"
                             : ""
-                        }`}
+                          }`}
                       >
-                        <ChevronRight
-                          size={16}
-                          className="sm:w-[18px] sm:h-[18px]"
-                        />
+                        <ChevronRight size={20} />
                       </button>
                     </div>
                   </div>
@@ -161,11 +166,13 @@ export default function GalleryCSR({ initialData }) {
 
                 {/* Horizontal carousel */}
                 <div className="overflow-hidden relative">
-                  <div
-                    className="flex gap-4 sm:gap-6 transition-transform duration-500 ease-in-out"
-                    style={{
-                      transform: `translateX(-${(start * 100) / pageSize}%)`,
+                  <motion.div
+                    className="flex gap-4 sm:gap-6"
+                    initial={false}
+                    animate={{
+                      x: `-${(start * 100) / pageSize}%`,
                     }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   >
                     {g.items
                       .filter((item) => item.image)
@@ -173,37 +180,40 @@ export default function GalleryCSR({ initialData }) {
                         const imgUrl = normalizeImageUrl(item.image || "");
                         if (!imgUrl) return null;
                         return (
-                          <figure
+                          <motion.figure
                             key={item.id}
-                            className="flex-shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[320px]"
+                            className="flex-shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[320px] group cursor-pointer"
+                            whileHover={{ y: -5 }}
+                            transition={{ duration: 0.3 }}
                           >
-                            <div className="w-full overflow-hidden rounded-none">
+                            <div className="w-full overflow-hidden relative aspect-[4/5]">
                               <Image
                                 src={imgUrl}
                                 alt={item.title || ""}
-                                width={500}
-                                height={500}
-                                className="w-full h-[200px] sm:h-[250px] md:h-[300px] object-cover rounded-none"
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                               />
-                          </div>
-                          <figcaption className="mt-2 sm:mt-3">
-                            {item.title && (
-                              <div className="text-xs sm:text-sm md:text-base font-playfair-display text-white line-clamp-2">
-                                {item.title}
-                              </div>
-                            )}
-                            {item.date && (
-                              <div className="text-xs text-white/70 mt-1">
-                                {item.date}
-                              </div>
-                            )}
-                          </figcaption>
-                        </figure>
-                      );
-                    })}
-                  </div>
+                              <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-300" />
+                            </div>
+                            <figcaption className="mt-4 text-center sm:text-left">
+                              {item.title && (
+                                <h4 className="text-base sm:text-lg font-playfair-display text-white group-hover:text-muted-bronze transition-colors">
+                                  {item.title}
+                                </h4>
+                              )}
+                              {item.date && (
+                                <p className="text-xs tracking-widest text-white/50 mt-1 uppercase">
+                                  {item.date}
+                                </p>
+                              )}
+                            </figcaption>
+                          </motion.figure>
+                        );
+                      })}
+                  </motion.div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

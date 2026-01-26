@@ -3,10 +3,13 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import { motion, useInView } from "framer-motion";
 
 export default function TestimonialsClient({ testimonials }) {
   const [current, setCurrent] = useState(0);
   const scrollContainerRef = useRef(null);
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   const items = testimonials.content_items?.filter(
     (item) => item.is_active && item.image
@@ -63,8 +66,13 @@ useEffect(() => {
   const allItems = items;
 
   return (
-    <section className="w-full px-4 sm:px-6 py-16 bg-white">
-      <div className="text-center mb-10">
+    <section ref={sectionRef} className="w-full px-4 sm:px-6 py-16 bg-gradient-to-b from-white to-gray-50">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-10"
+      >
         <h2
           className="text-3xl md:text-4xl font-bold uppercase tracking-wide"
           style={{ color: "#ad8a56", fontFamily: "'Playfair Display', serif" }}
@@ -79,111 +87,152 @@ useEffect(() => {
             {testimonials.subheading}
           </p>
         )}
-      </div>
+      </motion.div>
 
       <div className="relative max-w-4xl mx-auto flex items-center">
-        <button
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           onClick={prevSlide}
-          className="hidden md:flex absolute left-[-60px] top-1/2 -translate-y-1/2 z-10 w-12 h-12 items-center justify-center rounded-full bg-[#ad8a56] text-white hover:bg-[#8c6e42] transition"
+          className="hidden md:flex absolute left-[-60px] top-1/2 -translate-y-1/2 z-10 w-12 h-12 items-center justify-center rounded-full bg-[#ad8a56] text-white hover:bg-[#8c6e42] transition shadow-lg"
         >
           <IoChevronBack size={24} />
-        </button>
+        </motion.button>
         <div
           ref={scrollContainerRef}
           className="flex overflow-x-scroll snap-x snap-mandatory w-full hide-scrollbar cursor-default"
           style={{ scrollBehavior: "smooth", WebkitOverflowScrolling: "touch" }}
         >
-          {allItems.map((item) => (
-            <div
+          {allItems.map((item, index) => (
+            <motion.div
               key={item.id}
+              initial={{ opacity: 0, y: 50 }}
+              animate={isInView ? {
+                opacity: 1,
+                y: 0,
+              } : { opacity: 0, y: 50 }}
+              transition={{ 
+                duration: 0.6, 
+                delay: index * 0.1,
+                ease: "easeOut" 
+              }}
               className="flex-shrink-0 w-11/12 md:w-1/2 p-2 snap-start mx-auto"
             >
-              <div className="relative shadow-lg overflow-hidden bg-white border border-gray-100 group">
-                <div className="w-full h-[350px] sm:h-[400px] relative">
-                  <Image
-                    src={item.image}
-                    alt={item.title || "client image"}
-                    fill
-                    className="object-cover md:group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="w-full bg-white/95 p-4 transition-all duration-500">
-                  <div className="content-inner">
-                    <h3
-                      className="text-lg font-bold mb-2"
-                      style={{ fontFamily: "'Playfair Display', serif" }}
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  className="relative shadow-lg overflow-hidden bg-white border border-gray-100 group"
+                >
+                  <div className="w-full h-[350px] sm:h-[400px] relative overflow-hidden">
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.5 }}
                     >
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-gray-700 mb-3">
-                      {item.description}
-                    </p>
-                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
-                      {item.button_url && item.button_text && (
-                        <a
-                          href={item.button_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center space-x-2 text-gray-700 hover:text-[#ad8a56] transition"
-                        >
-                          <span className="w-8 h-8 flex items-center justify-center rounded-full bg-[#ad8a56]/20">
-                            ▶
-                          </span>
-                          <span className="text-sm">{item.button_text}</span>
-                        </a>
-                      )}
-                      <div className="flex space-x-3">
-                        {item.facebook_url && (
-                          <a
-                            href={item.facebook_url}
+                      <Image
+                        src={item.image}
+                        alt={item.title || "client image"}
+                        fill
+                        className="object-cover transition-transform duration-500"
+                      />
+                    </motion.div>
+                  </div>
+                  <motion.div
+                    initial={{ y: 0 }}
+                    whileHover={{ y: -5 }}
+                    className="w-full bg-white/95 p-4 transition-all duration-500"
+                  >
+                    <div className="content-inner">
+                      <h3
+                        className="text-lg font-bold mb-2"
+                        style={{ fontFamily: "'Playfair Display', serif" }}
+                      >
+                        {item.title}
+                      </h3>
+                      <p className="text-sm text-gray-700 mb-3">
+                        {item.description}
+                      </p>
+                      <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+                        {item.button_url && item.button_text && (
+                          <motion.a
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            href={item.button_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-8 h-8 flex items-center justify-center rounded-full bg-[#ad8a56]/20 hover:bg-[#ad8a56]/40 transition"
+                            className="flex items-center space-x-2 text-gray-700 hover:text-[#ad8a56] transition"
                           >
-                            <FaFacebookF className="text-[#ad8a56]" size={14} />
-                          </a>
+                            <span className="w-8 h-8 flex items-center justify-center rounded-full bg-[#ad8a56]/20">
+                              ▶
+                            </span>
+                            <span className="text-sm">{item.button_text}</span>
+                          </motion.a>
                         )}
-                        {item.instagram_url && (
-                          <a
-                            href={item.instagram_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-8 h-8 flex items-center justify-center rounded-full bg-[#ad8a56]/20 hover:bg-[#ad8a56]/40 transition"
-                          >
-                            <FaInstagram className="text-[#ad8a56]" size={14} />
-                          </a>
-                        )}
-                        {item.twitter_url && (
-                          <a
-                            href={item.twitter_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-8 h-8 flex items-center justify-center rounded-full bg-[#ad8a56]/20 hover:bg-[#ad8a56]/40 transition"
-                          >
-                            <FaTwitter className="text-[#ad8a56]" size={14} />
-                          </a>
-                        )}
+                        <div className="flex space-x-3">
+                          {item.facebook_url && (
+                            <motion.a
+                              whileHover={{ scale: 1.2, rotate: 5 }}
+                              whileTap={{ scale: 0.9 }}
+                              href={item.facebook_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-8 h-8 flex items-center justify-center rounded-full bg-[#ad8a56]/20 hover:bg-[#ad8a56]/40 transition"
+                            >
+                              <FaFacebookF className="text-[#ad8a56]" size={14} />
+                            </motion.a>
+                          )}
+                          {item.instagram_url && (
+                            <motion.a
+                              whileHover={{ scale: 1.2, rotate: -5 }}
+                              whileTap={{ scale: 0.9 }}
+                              href={item.instagram_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-8 h-8 flex items-center justify-center rounded-full bg-[#ad8a56]/20 hover:bg-[#ad8a56]/40 transition"
+                            >
+                              <FaInstagram className="text-[#ad8a56]" size={14} />
+                            </motion.a>
+                          )}
+                          {item.twitter_url && (
+                            <motion.a
+                              whileHover={{ scale: 1.2, rotate: 5 }}
+                              whileTap={{ scale: 0.9 }}
+                              href={item.twitter_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-8 h-8 flex items-center justify-center rounded-full bg-[#ad8a56]/20 hover:bg-[#ad8a56]/40 transition"
+                            >
+                              <FaTwitter className="text-[#ad8a56]" size={14} />
+                            </motion.a>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
           ))}
         </div>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           onClick={nextSlide}
-          className="hidden md:flex absolute right-[-60px] top-1/2 -translate-y-1/2 z-10 w-12 h-12 items-center justify-center rounded-full bg-[#ad8a56] text-white hover:bg-[#8c6e42] transition"
+          className="hidden md:flex absolute right-[-60px] top-1/2 -translate-y-1/2 z-10 w-12 h-12 items-center justify-center rounded-full bg-[#ad8a56] text-white hover:bg-[#8c6e42] transition shadow-lg"
         >
           <IoChevronForward size={24} />
-        </button>
+        </motion.button>
       </div>
 
       {/* Dots (Hidden on Desktop) */}
-      <div className="flex justify-center space-x-2 mt-8 md:hidden">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ delay: 0.3 }}
+        className="flex justify-center space-x-2 mt-8 md:hidden"
+      >
         {items.map((_, index) => (
-          <button
+          <motion.button
             key={index}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => setCurrent(index)}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
               index === current
@@ -193,7 +242,7 @@ useEffect(() => {
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
-      </div>
+      </motion.div>
 
       <style jsx global>{`
         .hide-scrollbar::-webkit-scrollbar {

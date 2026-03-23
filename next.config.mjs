@@ -6,6 +6,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "rushibackend.strangled.net",
       },
+      {
+        protocol: "https",
+        hostname: "photographersite-production.up.railway.app",
+      },
     ],
   },
 };
